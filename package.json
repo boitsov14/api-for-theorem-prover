@@ -1,0 +1,23 @@
+{
+  "name": "prover-twitter-bot-docker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boitsov14/prover-twitter-bot-docker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/boitsov14/prover-twitter-bot-docker/issues"
+  },
+  "homepage": "https://github.com/boitsov14/prover-twitter-bot-docker#readme",
+  "dependencies": {
+    "express": "^4.18.1"
+  }
+}
