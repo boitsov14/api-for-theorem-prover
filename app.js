@@ -38,11 +38,7 @@ app.post('/twitter_bot', (req, res) => {
 
     //各tweetの処理
     for (const tweet of tweets) {
-        try {
-            process_tweet(tweet)
-        } catch (err) {
-            console.log(`ERROR: ${err.message}`)
-        }
+        process_tweet(tweet)
     }
 })
 
@@ -113,13 +109,15 @@ const process_tweet_core = async (id, username) => {
         const size = sizeOf(`./workdir/${id}1.png`)
 
         //画像サイズが大きすぎるときは縮小する
-        if (size.width > 8192 || size.height > 8192) {
-            console.log(`The image size is too large: ${size.width} * ${size.height}`)
+        if (size.height > 8192 || size.width > 8192) {
+            console.log(`The image size is too large: ${size.height} * ${size.width}`)
             await sharp(`./workdir/${id}1.png`)
                 .resize(8192, 8192, { fit: 'inside' })
-                .toFile(`./workdir/${id}1.png`)
+                .toFile(`./workdir/${id}1_resized.png`)
+            image = `./workdir/${id}1_resized.png`
+        } else {
+            image = `./workdir/${id}1.png`
         }
-        image = `./workdir/${id}1.png`
     }
 
     //.@ユーザ名 + message + 長さが4~5のランダムな文字列
@@ -133,7 +131,7 @@ const process_tweet_core = async (id, username) => {
 
 const make_reply = async (id, message, image) => {
     if (image) {
-        //image付きツイート
+        //画像付きツイート
         const media_id = await client.v1.uploadMedia(image)
         await client.v1.tweet(
             message, {
@@ -141,7 +139,7 @@ const make_reply = async (id, message, image) => {
             media_ids: media_id
         })
     } else {
-        //image無しツイート
+        //画像なしツイート
         await client.v1.tweet(
             message, {
             in_reply_to_status_id: id
