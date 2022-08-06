@@ -91,25 +91,20 @@ const process_tweet_core = async (id, username) => {
         message = fs.readFileSync(`./workdir/${id}_message.txt`, 'utf-8')
     }
 
-    //Texファイルが存在するとき
-    if (fs.existsSync(`./workdir/${id}.tex`)) {
-        if (!(fs.existsSync(`./workdir/${id}.log`))) {
-            //logファイルが出力される前に異常終了が起きたとき
-            message += 'An unexpected error has occurred: No tex log file.'
-        } else {
-            //logファイルの読み込み
-            const log = fs.readFileSync(`./workdir/${id}.log`, 'utf-8')
+    //logファイルが存在するとき
+    if (fs.existsSync(`./workdir/${id}.log`)) {
+        //logファイルの読み込み
+        const log = fs.readFileSync(`./workdir/${id}.log`, 'utf-8')
 
-            if (log.includes('Dimension too large')) {
-                //Dimension too largeのとき
-                message += 'The proof tree is too large to output: Dimension too large.'
-            } else if (log.includes('DVI stack overflow')) {
-                //Fatal error, DVI stack overflowのとき
-                message += 'The proof tree is too large to output: DVI stack overflow.'
-            } else if (!(fs.existsSync(`./workdir/${id}1.png`))) {
-                //その他の予期せぬ理由によりPNGが生成されないとき
-                message += 'An unexpected error has occurred: No png file.'
-            }
+        if (log.includes('Dimension too large')) {
+            //Dimension too largeのとき
+            message += 'The proof tree is too large to output: Dimension too large.'
+        } else if (log.includes('DVI stack overflow')) {
+            //Fatal error, DVI stack overflowのとき
+            message += 'The proof tree is too large to output: DVI stack overflow.'
+        } else if (!(fs.existsSync(`./workdir/${id}1.png`))) {
+            //その他の予期せぬ理由によりPNGが生成されないとき
+            message += 'An unexpected error has occurred: No png file.'
         }
     }
 

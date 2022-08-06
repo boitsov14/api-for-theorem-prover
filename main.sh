@@ -3,7 +3,7 @@ ID=$1
 SEQUENT=$2
 cd workdir
 # main.jar の実行
-java -jar ../main.jar "$ID" "$SEQUENT"
+java -jar ../main.jar "$ID" "$SEQUENT" > "$ID"_message.txt
 
 # ID.tex が存在しているとき
 if [[ -e "$ID".tex ]]; then
