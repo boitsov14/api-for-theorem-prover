@@ -106,7 +106,7 @@ const process_tweet_core = async (id, username) => {
             } else if (log.includes('DVI stack overflow')) {
                 //Fatal error, DVI stack overflowのとき
                 message += 'The proof tree is too large to output: DVI stack overflow.'
-            } else if (!(fs.existsSync(__dirname + `/workdir/${id}1.png`))) {
+            } else if (!(fs.existsSync(`./workdir/${id}1.png`))) {
                 //その他の予期せぬ理由によりPNGが生成されないとき
                 message += 'An unexpected error has occurred: No png file.'
             }
@@ -115,7 +115,7 @@ const process_tweet_core = async (id, username) => {
 
     //PNGが存在するとき
     if (fs.existsSync(`./workdir/${id}1.png`)) {
-        const size = sizeOf(__dirname + `./workdir/${id}1.png`)
+        const size = sizeOf(`./workdir/${id}1.png`)
 
         //画像サイズが大きすぎるときは縮小する
         if (size.width > 8192 || size.height > 8192) {
