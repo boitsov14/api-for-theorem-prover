@@ -20,6 +20,9 @@ fi
 if grep -q "OutOfMemoryError" "$ID"_jar_error.txt; then
     echo -n "Proof Failed: OutOfMemoryError." >>"$ID"_message.txt
     echo "OutOfMemoryError"
+elif [[ $EXIT_STATUS -ne 0 ]]; then
+    echo -n "An unexpected error has occurred: Java exec failure." >>"$ID"_message.txt
+    echo "An unexpected error has occurred: Java exec failure."
 fi
 
 # ID.tex が存在しているとき
