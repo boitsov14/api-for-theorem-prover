@@ -84,29 +84,6 @@ const process_tweet_core = async (id, username) => {
     let message = fs.readFileSync(`./workdir/${id}_message.txt`, 'utf-8')
     let image = ''
 
-    if (!message) {
-        //messageファイルが書き込まれる前に異常終了したとき
-        //node.jsの方のTimeoutに引っかかった場合，メモリ超過等を原因としたHerokuによる強制終了等
-        message = 'An unexpected error has occurred: message file is empty.'
-    }
-
-    //logファイルが存在するとき = texファイルが存在するとき
-    if (fs.existsSync(`./workdir/${id}.log`)) {
-        //logファイルの読み込み
-        const log = fs.readFileSync(`./workdir/${id}.log`, 'utf-8')
-
-        if (log.includes('Dimension too large')) {
-            //Dimension too largeのとき
-            message += 'The proof tree is too large to output: Dimension too large.'
-        } else if (log.includes('DVI stack overflow')) {
-            //Fatal error, DVI stack overflowのとき
-            message += 'The proof tree is too large to output: DVI stack overflow.'
-        } else if (!(fs.existsSync(`./workdir/${id}1.png`))) {
-            //その他の予期せぬ理由によりPNGが生成されないとき
-            message += 'An unexpected error has occurred: Could not compile tex file.'
-        }
-    }
-
     //PNGが存在するとき
     if (fs.existsSync(`./workdir/${id}1.png`)) {
         const size = sizeOf(`./workdir/${id}1.png`)
