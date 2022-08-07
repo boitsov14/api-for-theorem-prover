@@ -3,7 +3,8 @@
 require('dotenv').config()
 const express = require('express')
 const fs = require('fs')
-const { exec } = require('child_process')
+const util = require('util')
+const exec = util.promisify(require('child_process').exec)
 const sizeOf = require('image-size')
 const sharp = require('sharp')
 const { TwitterApi } = require('twitter-api-v2')
@@ -37,10 +38,18 @@ app.post('/twitter_bot', (req, res) => {
     const { tweets } = req.body
 
     //各tweetの処理
-    for (const tweet of tweets) {
-        process_tweet(tweet)
-    }
+    process_tweets(tweets)
 })
+
+const process_tweets = async (tweets) => {
+    for (const tweet of tweets) {
+        console.log(tweet)
+        await process_tweet(tweet).catch(e => {
+            console.log('An unexpected serious error has occurred.')
+            console.log(e.stack)
+        })
+    }
+}
 
 const process_tweet = async (tweet) => {
 
@@ -54,37 +63,31 @@ const process_tweet = async (tweet) => {
         .replaceAll('&gt;', '>')
         .replaceAll('&amp;', '&')
 
-    console.log({
-        'id': id,
-        'sequent': sequent
-    })
-
     //main.sh のコマンド実行
-    exec(`bash main.sh "${id}" "${sequent}"`, { timeout: 10 * 60 * 1000 }, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`BASH ERROR: ${error}`)
-        }
+    try {
+        const { stdout, stderr } = await exec(`bash main.sh "${id}" "${sequent}"`, { timeout: 10 * 60 * 1000 })
         if (stderr) {
             console.log(`BASH STDERR: ${stderr}`)
         }
         if (stdout) {
             console.log(`BASH STDOUT: ${stdout}`)
         }
-        process_tweet_core(id, username)
-    })
+    } catch (error) {
+        console.log(`BASH ERROR: ${error}`)
+    }
+
+    await process_tweet_core(id, username)
 }
 
 const process_tweet_core = async (id, username) => {
     //tweet文章と画像
-    let message = ''
+    let message = fs.readFileSync(`./workdir/${id}_message.txt`, 'utf-8')
     let image = ''
 
-    //message.txt の読み込み
-    if (!(fs.existsSync(`./workdir/${id}_message.txt`))) {
-        //main.jar がmessageファイルに書き込む前に異常終了したとき
+    //messageファイルが書き込まれる前に異常終了したとき
+    //node.jsの方のTimeoutに引っかかった場合，メモリ超過等を原因としたHerokuによる強制終了等
+    if (!message) {
         message = 'An unexpected error has occurred: No message file.'
-    } else {
-        message = fs.readFileSync(`./workdir/${id}_message.txt`, 'utf-8')
     }
 
     //logファイルが存在するとき
