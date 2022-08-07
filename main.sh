@@ -3,9 +3,24 @@ ID=$1
 SEQUENT=$2
 cd workdir
 # main.jar の実行
+# 制限時間を5分に制限
 # heap size を300MBに制限
 # stack size を512KBに制限
-java -Xmx300m -Xss512k -XX:CICompilerCount=2 -jar ../main.jar "$ID" "$SEQUENT" >"$ID"_message.txt
+timeout 300 java -Xmx300m -Xss512k -XX:CICompilerCount=2 -jar ../main.jar "$ID" "$SEQUENT" 1>"$ID"_message.txt 2>"$ID"_jar_error.txt
+
+EXIT_STATUS=$?
+
+# Timeoutしたとき
+if [[ $EXIT_STATUS -eq 124 ]]; then
+    echo -n "Proof Failed: Timeout." >>"$ID"_message.txt
+    echo "Timeout"
+fi
+
+# OutOfMemoryErrorしたとき
+if grep -q "OutOfMemoryError" "$ID"_jar_error.txt; then
+    echo -n "Proof Failed: OutOfMemoryError." >>"$ID"_message.txt
+    echo "OutOfMemoryError"
+fi
 
 # ID.tex が存在しているとき
 if [[ -e "$ID".tex ]]; then

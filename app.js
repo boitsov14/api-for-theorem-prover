@@ -65,7 +65,7 @@ const process_tweet = async (tweet) => {
 
     //main.sh のコマンド実行
     try {
-        const { stdout, stderr } = await exec(`bash main.sh "${id}" "${sequent}"`, { timeout: 10 * 60 * 1000 })
+        const { stdout, stderr } = await exec(`bash main.sh "${id}" "${sequent}"`)
         if (stderr) {
             console.log(`BASH STDERR: ${stderr}`)
         }
@@ -81,20 +81,13 @@ const process_tweet = async (tweet) => {
 
 const process_tweet_core = async (id, username) => {
     //tweet文章と画像
-    let message = ''
+    let message = fs.readFileSync(`./workdir/${id}_message.txt`, 'utf-8')
     let image = ''
 
-    if (!(fs.existsSync(`./workdir/${id}_message.txt`))) {
-        //messageファイルが作成される前に異常終了したとき
-        message = 'An unexpected error has occurred: No message file.'
-    } else {
-        //message.txt の読み込み
-        message = fs.readFileSync(`./workdir/${id}_message.txt`, 'utf-8')
-        if (!message) {
-            //messageファイルが書き込まれる前に異常終了したとき
-            //node.jsの方のTimeoutに引っかかった場合，メモリ超過等を原因としたHerokuによる強制終了等
-            message = 'An unexpected error has occurred: Empty message file.'
-        }
+    if (!message) {
+        //messageファイルが書き込まれる前に異常終了したとき
+        //node.jsの方のTimeoutに引っかかった場合，メモリ超過等を原因としたHerokuによる強制終了等
+        message = 'An unexpected error has occurred: message file is empty.'
     }
 
     //logファイルが存在するとき = texファイルが存在するとき
