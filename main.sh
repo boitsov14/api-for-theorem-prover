@@ -1,5 +1,4 @@
 #!/bin/bash
-set -u # 未定義変数の使用をエラーにする
 ID=$1
 SEQUENT=$2
 cd workdir
@@ -12,13 +11,13 @@ timeout 300 java -Xmx300m -Xss512k -XX:CICompilerCount=2 -jar ../main.jar "$ID" 
 
 EXIT_STATUS=$?
 
-if [[ $EXIT_STATUS -eq 124 ]]; then
+if [[ "$EXIT_STATUS" -eq 124 ]]; then
     # Timeoutしたとき
     echo -n "Proof Failed: Timeout." >>"$ID"_message.txt
 elif grep -q "OutOfMemoryError" "$ID"_java_error.txt; then
     # OutOfMemoryErrorしたとき
     echo -n "Proof Failed: OutOfMemoryError." >>"$ID"_message.txt
-elif [[ $EXIT_STATUS -ne 0 ]]; then
+elif [[ "$EXIT_STATUS -ne 0" ]]; then
     # 上記以外の予期せぬエラーが発生したとき
     echo -n "An unexpected error has occurred: Java exec failure." >>"$ID"_message.txt
 fi
