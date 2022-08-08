@@ -29,7 +29,7 @@ elif grep -q "OutOfMemoryError" "$ID"_java_error.txt; then
         # ID_message.txtが空のとき
         echo -n "Proof Failed: OutOfMemoryError." >"$ID"_message.txt
     fi
-elif [[ "$EXIT_STATUS -ne 0" ]]; then
+elif [[ "$EXIT_STATUS" -ne 0 ]]; then
     # 上記以外の予期せぬエラーが発生したとき
     echo -n "An unexpected error has occurred: Java exec failure." >>"$ID"_message.txt
 fi
