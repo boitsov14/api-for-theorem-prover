@@ -13,10 +13,22 @@ EXIT_STATUS=$?
 
 if [[ "$EXIT_STATUS" -eq 124 ]]; then
     # Timeoutしたとき
-    echo -n "Proof Failed: Timeout." >>"$ID"_message.txt
+    if [[ -s "$ID"_message.txt ]]; then
+        # ID_message.txtが空でないとき
+        echo -n " The proof tree is too large to output: Timeout." >>"$ID"_message.txt
+    else
+        # ID_message.txtが空のとき
+        echo -n "Proof Failed: Timeout." >"$ID"_message.txt
+    fi
 elif grep -q "OutOfMemoryError" "$ID"_java_error.txt; then
     # OutOfMemoryErrorしたとき
-    echo -n "Proof Failed: OutOfMemoryError." >>"$ID"_message.txt
+    if [[ -s "$ID"_message.txt ]]; then
+        # ID_message.txtが空でないとき
+        echo -n " The proof tree is too large to output: OutOfMemoryError." >>"$ID"_message.txt
+    else
+        # ID_message.txtが空のとき
+        echo -n "Proof Failed: OutOfMemoryError." >"$ID"_message.txt
+    fi
 elif [[ "$EXIT_STATUS -ne 0" ]]; then
     # 上記以外の予期せぬエラーが発生したとき
     echo -n "An unexpected error has occurred: Java exec failure." >>"$ID"_message.txt
