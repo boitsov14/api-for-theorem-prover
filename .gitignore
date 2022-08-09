@@ -3,3 +3,4 @@ upload_jarfile.sh
 .env
 main.jar
 workdir/
+memo.md
