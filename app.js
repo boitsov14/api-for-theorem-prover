@@ -76,10 +76,6 @@ const process_tweet = async (tweet) => {
         console.log(`BASH ERROR: ${error}`)
     }
 
-    await process_tweet_core(id, username)
-}
-
-const process_tweet_core = async (id, username) => {
     //tweet文章と画像
     let message = fs.readFileSync(`./workdir/${id}_message.txt`, 'utf-8')
     let image = ''
@@ -103,12 +99,7 @@ const process_tweet_core = async (id, username) => {
     const tweet_text = `.@${username} ${message} (${Math.random().toString(32).substring(8)})`
 
     //ツイートする
-    //await make_reply(id, tweet_text, image)
-
-    console.log(`Tweet Success: ${tweet_text}`)
-}
-
-const make_reply = async (id, message, image) => {
+    /*
     if (image) {
         //画像付きツイート
         const media_id = await client.v1.uploadMedia(image)
@@ -124,4 +115,7 @@ const make_reply = async (id, message, image) => {
             in_reply_to_status_id: id
         })
     }
+    */
+
+    console.log(`Tweet Success: ${tweet_text}`)
 }
