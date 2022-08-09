@@ -54,7 +54,7 @@ if [[ -e "$ID".dvi ]]; then
     if grep -q "DVI stack overflow" "$ID"_error.log; then
         # DVI stack overflowのとき
         echo -n " The proof tree is too large to output: DVI stack overflow." >>"$ID"_message.txt
-    elif [[ ! -e "$ID".png ]]; then
+    elif [[ ! -e "$ID"1.png ]]; then
         # その他の予期せぬ理由によりpngファイルが生成されないとき
         echo -n " An unexpected error has occurred: Could not compile dvi file." >>"$ID"_message.txt
     fi
