@@ -103,14 +103,14 @@ const process_tweet = async (tweet) => {
         //画像付きツイート
         const media_id = await client.v1.uploadMedia(image)
         await client.v1.tweet(
-            message, {
+            tweet_text, {
             in_reply_to_status_id: id,
             media_ids: media_id
         })
     } else {
         //画像なしツイート
         await client.v1.tweet(
-            message, {
+            tweet_text, {
             in_reply_to_status_id: id
         })
     }
