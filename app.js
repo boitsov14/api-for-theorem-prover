@@ -77,7 +77,7 @@ const process_tweet = async (tweet) => {
     }
 
     //tweet文章と画像
-    let message = fs.readFileSync(`./workdir/${id}_message.txt`, 'utf-8')
+    let message = fs.readFileSync(`./workdir/${id}_msg.txt`, 'utf-8')
     let image = ''
 
     //PNGが存在するとき

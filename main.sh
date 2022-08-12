@@ -7,31 +7,31 @@ cd workdir
 # 制限時間を5分に制限
 # heap size を300MBに制限
 # stack size を512KBに制限
-timeout 300 java -Xmx300m -Xss512k -XX:CICompilerCount=2 -jar ../main.jar "$ID" "$SEQUENT" 1>"$ID"_message.txt 2>"$ID"_java_error.txt
+timeout 300 java -Xmx300m -Xss512k -XX:CICompilerCount=2 -jar ../main.jar "$ID" "$SEQUENT" 1>"$ID"_msg.txt 2>"$ID"_java_error.txt
 
 EXIT_STATUS=$?
 
 if [[ "$EXIT_STATUS" -eq 124 ]]; then
     # Timeoutしたとき
-    if [[ -s "$ID"_message.txt ]]; then
-        # ID_message.txtが空でないとき
-        echo -n " The proof tree is too large to output: Timeout." >>"$ID"_message.txt
+    if [[ -s "$ID"_msg.txt ]]; then
+        # ID_msg.txtが空でないとき
+        echo -n " The proof tree is too large to output: Timeout." >>"$ID"_msg.txt
     else
-        # ID_message.txtが空のとき
-        echo -n "Proof Failed: Timeout." >"$ID"_message.txt
+        # ID_msg.txtが空のとき
+        echo -n "Proof Failed: Timeout." >"$ID"_msg.txt
     fi
 elif grep -q "OutOfMemoryError" "$ID"_java_error.txt; then
     # OutOfMemoryErrorしたとき
-    if [[ -s "$ID"_message.txt ]]; then
-        # ID_message.txtが空でないとき
-        echo -n " The proof tree is too large to output: OutOfMemoryError." >>"$ID"_message.txt
+    if [[ -s "$ID"_msg.txt ]]; then
+        # ID_msg.txtが空でないとき
+        echo -n " The proof tree is too large to output: OutOfMemoryError." >>"$ID"_msg.txt
     else
-        # ID_message.txtが空のとき
-        echo -n "Proof Failed: OutOfMemoryError." >"$ID"_message.txt
+        # ID_msg.txtが空のとき
+        echo -n "Proof Failed: OutOfMemoryError." >"$ID"_msg.txt
     fi
 elif [[ "$EXIT_STATUS" -ne 0 ]]; then
     # 上記以外の予期せぬエラーが発生したとき
-    echo -n "An unexpected error has occurred: Java exec failure." >>"$ID"_message.txt
+    echo -n "An unexpected error has occurred: Java exec failure." >>"$ID"_msg.txt
 fi
 
 # ID.tex が存在しているとき
@@ -40,10 +40,10 @@ if [[ -e "$ID".tex ]]; then
     latex -halt-on-error "$ID".tex 1>>"$ID".log 2>>"$ID"_error.log
     if grep -q "Dimension too large" "$ID".log; then
         # Dimension too largeのとき
-        echo -n " The proof tree is too large to output: Dimension too large." >>"$ID"_message.txt
+        echo -n " The proof tree is too large to output: Dimension too large." >>"$ID"_msg.txt
     elif [[ ! -e "$ID".dvi ]]; then
         # その他の予期せぬ理由によりdviファイルが生成されないとき
-        echo -n " An unexpected error has occurred: Could not compile tex file." >>"$ID"_message.txt
+        echo -n " An unexpected error has occurred: Could not compile tex file." >>"$ID"_msg.txt
     fi
 fi
 
@@ -53,10 +53,10 @@ if [[ -e "$ID".dvi ]]; then
     dvipng "$ID".dvi 1>>"$ID".log 2>>"$ID"_error.log
     if grep -q "DVI stack overflow" "$ID"_error.log; then
         # DVI stack overflowのとき
-        echo -n " The proof tree is too large to output: DVI stack overflow." >>"$ID"_message.txt
+        echo -n " The proof tree is too large to output: DVI stack overflow." >>"$ID"_msg.txt
     elif [[ ! -e "$ID"1.png ]]; then
         # その他の予期せぬ理由によりpngファイルが生成されないとき
-        echo -n " An unexpected error has occurred: Could not compile dvi file." >>"$ID"_message.txt
+        echo -n " An unexpected error has occurred: Could not compile dvi file." >>"$ID"_msg.txt
     fi
 fi
 
