@@ -99,7 +99,6 @@ const process_tweet = async (tweet) => {
     const tweet_text = `.@${username} ${message} (${Math.random().toString(32).substring(8)})`
 
     //ツイートする
-    /*
     if (image) {
         //画像付きツイート
         const media_id = await client.v1.uploadMedia(image)
@@ -115,7 +114,6 @@ const process_tweet = async (tweet) => {
             in_reply_to_status_id: id
         })
     }
-    */
 
     console.log(`Tweet Success: ${tweet_text}`)
 }
