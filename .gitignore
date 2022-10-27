@@ -1,5 +1,5 @@
-upload_jarfile.sh
-.env
-prover.jar
 workdir/
+.env
 memo.md
+prover.jar
+upload_jarfile.sh

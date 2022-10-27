@@ -1,3 +1,4 @@
+# Goをビルドするステージ
 FROM golang:alpine as go-builder
 WORKDIR /build
 COPY go.mod go.sum ./
@@ -5,6 +6,7 @@ RUN go mod download
 COPY *.go .
 RUN go build -o server -ldflags="-s -w"
 
+# jarファイルを元に静的バイナリを生成するステージ
 FROM boitsov14/graalvm-static-native-image AS jar-builder
 WORKDIR /build
 COPY prover.jar .

@@ -102,7 +102,7 @@ func prove(id, sequent string) string {
 	// 制限時間を5分に制限
 	// heap sizeを300MBに制限
 	// stack sizeを512KBに制限
-	stdout, stderr, err := CommandExecWithTimeout(5*time.Minute, "../prover", "-Dfile.encoding=UTF-8", "-Xmx300m", "-Xss512k", id, sequent)
+	stdout, stderr, err := CommandExecWithTimeout(5*time.Minute, "../prover", "-Xmx300m", "-Xss512k", id, sequent)
 
 	// Timeoutしたとき
 	if err == context.DeadlineExceeded {
