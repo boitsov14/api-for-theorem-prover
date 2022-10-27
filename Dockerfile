@@ -9,8 +9,8 @@ RUN go build -o server -ldflags="-s -w"
 # jarファイルを元に静的バイナリを生成するステージ
 FROM boitsov14/graalvm-static-native-image AS jar-builder
 WORKDIR /build
-COPY prover.jar .
-RUN native-image --static --libc=musl --no-fallback -jar prover.jar
+COPY prover.jar reflection.json ./
+RUN native-image --static --libc=musl --no-fallback -J-Dfile.encoding=UTF-8 -H:ReflectionConfigurationFiles=reflection.json -jar prover.jar
 
 FROM alpine:latest
 COPY --from=boitsov14/minimal-bussproofs-latex /usr/local/texlive /usr/local/texlive
