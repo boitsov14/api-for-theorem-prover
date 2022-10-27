@@ -55,7 +55,7 @@ func exists(path string) bool {
 }
 
 func resizeImg(id string) {
-	
+
 	path := id + ".png"
 
 	if !exists(path) {
