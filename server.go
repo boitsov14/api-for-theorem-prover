@@ -35,13 +35,11 @@ func main() {
 			return err
 		}
 
-		c.SendStatus(fiber.StatusOK)
-
 		fmt.Println(tweet)
 
-		processTweet(tweet)
+		go processTweet(tweet)
 
-		return nil
+		return c.SendStatus(fiber.StatusOK)
 	})
 
 	// portの設定
