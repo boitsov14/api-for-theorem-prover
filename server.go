@@ -98,8 +98,7 @@ func processTweet(tweet *Tweet) {
 func prove(id, sequent string) string {
 	// proverの実行
 	// 制限時間を5分に制限
-	// heap sizeを300MBに制限
-	// stack sizeを512KBに制限
+	// heap sizeを2GBに制限
 	stdout, stderr, err := CommandExecWithTimeout(5*time.Minute, "../prover", "-Xmx2g", id, sequent)
 
 	// Timeoutしたとき
