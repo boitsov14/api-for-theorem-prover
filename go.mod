@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/ChimeraCoder/anaconda v2.0.0+incompatible
 	github.com/gofiber/fiber/v2 v2.39.0
+	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
 	golang.org/x/image v0.1.0
 )

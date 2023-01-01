@@ -8,11 +8,13 @@ import (
 	"math/rand"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/ChimeraCoder/anaconda"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -21,6 +23,7 @@ func main() {
 	app := fiber.New()
 
 	app.Post("/twitter", postTwitter)
+	app.Post("/web", postWeb)
 
 	// portの設定
 	port := os.Getenv("PORT")
@@ -74,7 +77,7 @@ func processTweet(tweet *Tweet) {
 	sequent = strings.ReplaceAll(sequent, "&gt;", ">")
 	sequent = strings.ReplaceAll(sequent, "&amp;", "&")
 
-	msg := prove(id, sequent, "2g", 5*time.Minute)
+	msg := prove(id, sequent, "2g", 1*time.Minute)
 	msg += makeDVI(id)
 	msg += makeImg(id)
 	resizeImg(id)
@@ -85,6 +88,89 @@ func processTweet(tweet *Tweet) {
 	if err := os.Chdir(".."); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func postWeb(c *fiber.Ctx) error {
+
+	// Bodyの取得
+	request := new(Request)
+	if err := c.BodyParser(request); err != nil {
+		fmt.Println("Could not parse body.")
+		return err
+	}
+
+	fmt.Println(request)
+	//TODO: Line notify
+
+	return c.JSON(processRequest(request.Text))
+}
+
+type Request struct {
+	Text string `json:"text"`
+}
+
+type Response struct {
+	Message string `json:"message"`
+	Image   string `json:"image"`
+	Tex     string `json:"tex"`
+}
+
+func processRequest(sequent string) *Response {
+
+	response := new(Response)
+
+	id := uuid.NewString()
+
+	// workディレクトリの作成&移動
+	os.Mkdir("work", os.ModePerm)
+	if err := os.Chdir("work"); err != nil {
+		log.Fatal(err)
+	}
+
+	// tweetのテキストの文字列置換
+	// TODO これは必要なのか
+	sequent = strings.Join(strings.Fields(sequent), " ")
+
+	msg := prove(id, sequent, "300m", 10*time.Second)
+	msg += makeDVI(id)
+	msg += makeImg(id)
+
+	response.Message = msg
+	//TODO: Line notify
+
+	if exists(id + ".png") {
+		// Image
+		imgBytes, err := os.ReadFile(id + ".png")
+		if err != nil {
+			log.Fatal(err)
+		}
+		response.Image = base64.StdEncoding.EncodeToString(imgBytes)
+		//TODO: Line notify
+		// Tex
+		texBytes, err := os.ReadFile(id + ".tex")
+		if err != nil {
+			log.Fatal(err)
+		}
+		response.Tex = string(texBytes)
+	}
+
+	// 生成したファイルの削除
+	files, err := filepath.Glob(id + ".*")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, f := range files {
+		if err := os.Remove(f); err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	// 初期ディレクトリに戻る
+	if err := os.Chdir(".."); err != nil {
+		log.Fatal(err)
+	}
+
+	return response
 }
 
 func prove(id, sequent, size string, timeout time.Duration) string {
