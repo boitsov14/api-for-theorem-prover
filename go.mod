@@ -7,6 +7,7 @@ require (
 	github.com/gofiber/fiber/v2 v2.39.0
 	github.com/google/uuid v1.3.0
 	github.com/joho/godotenv v1.4.0
+	github.com/juunini/simple-go-line-notify v1.3.1
 	golang.org/x/image v0.1.0
 )
 

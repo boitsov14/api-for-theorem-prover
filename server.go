@@ -16,6 +16,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/juunini/simple-go-line-notify/notify"
 )
 
 func main() {
@@ -99,8 +100,12 @@ func postWeb(c *fiber.Ctx) error {
 		return err
 	}
 
-	fmt.Println(request)
-	//TODO: Line notify
+	fmt.Println(request.Text)
+
+	// Line通知
+	if err := notify.SendText(os.Getenv("LINE_ACCESS_TOKEN"), request.Text); err != nil {
+		log.Fatal(err)
+	}
 
 	return c.JSON(processRequest(request.Text))
 }
@@ -136,7 +141,11 @@ func processRequest(sequent string) *Response {
 	msg += makeImg(id)
 
 	response.Message = msg
-	//TODO: Line notify
+
+	// Line通知
+	if err := notify.SendText(os.Getenv("LINE_ACCESS_TOKEN"), msg); err != nil {
+		log.Fatal(err)
+	}
 
 	if exists(id + ".png") {
 		// Image
@@ -145,7 +154,12 @@ func processRequest(sequent string) *Response {
 			log.Fatal(err)
 		}
 		response.Image = base64.StdEncoding.EncodeToString(imgBytes)
-		//TODO: Line notify
+
+		// Line通知
+		if err := notify.SendLocalImage(os.Getenv("LINE_ACCESS_TOKEN"), "Proof Tree:", id+".png"); err != nil {
+			log.Fatal(err)
+		}
+
 		// Tex
 		texBytes, err := os.ReadFile(id + ".tex")
 		if err != nil {
