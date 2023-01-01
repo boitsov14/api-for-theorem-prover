@@ -74,13 +74,13 @@ func processTweet(tweet *Tweet) {
 	sequent = strings.ReplaceAll(sequent, "&amp;", "&")
 
 	msg := prove(id, sequent)
-	msg += makeDVI(id, sequent)
-	msg += makeImg(id, sequent)
+	msg += makeDVI(id)
+	msg += makeImg(id)
 	resizeImg(id)
 
-	// ランダムな文字列の生成
+	// 長さ3のランダムな文字列の生成
 	rand.Seed(time.Now().UnixNano())
-	ran := make([]byte, 4)
+	ran := make([]byte, 3)
 	for i := range ran {
 		ran[i] = byte(rand.Intn(26)%26 + 97)
 	}
@@ -128,7 +128,7 @@ func prove(id, sequent string) string {
 	return stdout
 }
 
-func makeDVI(id, sequent string) string {
+func makeDVI(id string) string {
 
 	if !exists(id + ".tex") {
 		return ""
@@ -150,7 +150,7 @@ func makeDVI(id, sequent string) string {
 	return ""
 }
 
-func makeImg(id, sequent string) string {
+func makeImg(id string) string {
 
 	if !exists(id + ".dvi") {
 		return ""
