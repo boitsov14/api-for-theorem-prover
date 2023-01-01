@@ -20,27 +20,7 @@ func main() {
 
 	app := fiber.New()
 
-	app.Post("/twitter", func(c *fiber.Ctx) error {
-
-		// 認証確認
-		if c.GetReqHeaders()["Authorization"] != "Bearer "+os.Getenv("PASSWORD") {
-			fmt.Println("Unauthorized request has been detected.")
-			return c.SendStatus(fiber.StatusUnauthorized)
-		}
-
-		// Tweetの取得
-		tweet := new(Tweet)
-		if err := c.BodyParser(tweet); err != nil {
-			fmt.Println("Could not parse body.")
-			return err
-		}
-
-		fmt.Println(tweet)
-
-		go processTweet(tweet)
-
-		return c.SendStatus(fiber.StatusOK)
-	})
+	app.Post("/twitter", postTwitter)
 
 	// portの設定
 	port := os.Getenv("PORT")
@@ -48,6 +28,27 @@ func main() {
 		port = "3000"
 	}
 	app.Listen(":" + port)
+}
+
+func postTwitter(c *fiber.Ctx) error {
+	// 認証確認
+	if c.GetReqHeaders()["Authorization"] != "Bearer "+os.Getenv("PASSWORD") {
+		fmt.Println("Unauthorized request has been detected.")
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	// Tweetの取得
+	tweet := new(Tweet)
+	if err := c.BodyParser(tweet); err != nil {
+		fmt.Println("Could not parse body.")
+		return err
+	}
+
+	fmt.Println(tweet)
+
+	go processTweet(tweet)
+
+	return c.SendStatus(fiber.StatusOK)
 }
 
 type Tweet struct {
@@ -73,21 +74,12 @@ func processTweet(tweet *Tweet) {
 	sequent = strings.ReplaceAll(sequent, "&gt;", ">")
 	sequent = strings.ReplaceAll(sequent, "&amp;", "&")
 
-	msg := prove(id, sequent)
+	msg := prove(id, sequent, "2g", 5*time.Minute)
 	msg += makeDVI(id)
 	msg += makeImg(id)
 	resizeImg(id)
 
-	// 長さ3のランダムな文字列の生成
-	rand.Seed(time.Now().UnixNano())
-	ran := make([]byte, 3)
-	for i := range ran {
-		ran[i] = byte(rand.Intn(26)%26 + 97)
-	}
-
-	text := ".@" + username + " " + msg + " [" + string(ran) + "]"
-
-	sendTweet(id, text, username)
+	sendTweet(id, msg, username)
 
 	// 初期ディレクトリに戻る
 	if err := os.Chdir(".."); err != nil {
@@ -95,11 +87,9 @@ func processTweet(tweet *Tweet) {
 	}
 }
 
-func prove(id, sequent string) string {
-	// proverの実行
-	// 制限時間を5分に制限
-	// heap sizeを2GBに制限
-	stdout, stderr, err := CommandExecWithTimeout(5*time.Minute, "../prover", "-Xmx2g", id, sequent)
+func prove(id, sequent, size string, timeout time.Duration) string {
+
+	stdout, stderr, err := CommandExecWithTimeout(timeout, "../prover", "-Xmx"+size, id, sequent)
 
 	// Timeoutしたとき
 	if err == context.DeadlineExceeded {
@@ -172,7 +162,7 @@ func makeImg(id string) string {
 	return ""
 }
 
-func sendTweet(id, text, username string) {
+func sendTweet(id, msg, username string) {
 
 	api := anaconda.NewTwitterApiWithCredentials(
 		os.Getenv("ACCESS_TOKEN"),
@@ -181,10 +171,14 @@ func sendTweet(id, text, username string) {
 		os.Getenv("API_KEY_SECRET"),
 	)
 
+	// Tweetするテキスト
+	text := ".@" + username + " " + msg
+
 	// パラメータの設定
 	v := url.Values{}
 	v.Add("in_reply_to_status_id", id)
 
+	// 画像のアップロード処理
 	if exists(id + ".png") {
 		// PNGをBASE64に変換
 		bytes, err := os.ReadFile(id + ".png")
@@ -199,6 +193,17 @@ func sendTweet(id, text, username string) {
 			log.Fatal(err)
 		}
 		v.Add("media_ids", media.MediaIDString)
+	}
+
+	// ランダム文字列の設定
+	if !exists(id+".png") && !strings.Contains(msg, "seconds") {
+		// 長さ3のランダムな文字列の生成
+		rand.Seed(time.Now().UnixNano())
+		ran := make([]byte, 3)
+		for i := range ran {
+			ran[i] = byte(rand.Intn(26)%26 + 97)
+		}
+		text += " [" + string(ran) + "]"
 	}
 
 	tweet, err := api.PostTweet(text, v)
