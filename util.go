@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"image"
 	"image/png"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/juunini/simple-go-line-notify/notify"
 	"golang.org/x/image/draw"
 )
 
@@ -94,4 +96,16 @@ func resizeImg(id string) {
 	defer newFile.Close()
 
 	png.Encode(newFile, dst)
+}
+
+func notifyLine(msg string) {
+	if err := notify.SendText(os.Getenv("LINE_ACCESS_TOKEN"), msg); err != nil {
+		fmt.Println("LINE Notification error: ", err)
+	}
+}
+
+func notifyLineWithProofTree(msg, id string) {
+	if err := notify.SendLocalImage(os.Getenv("LINE_ACCESS_TOKEN"), msg, id+".png"); err != nil {
+		fmt.Println("LINE Notification error: ", err)
+	}
 }
