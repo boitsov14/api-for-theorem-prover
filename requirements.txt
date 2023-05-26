@@ -1,0 +1,6 @@
+requests
+python-dotenv
+flask
+waitress
+flask_cors
+misskey.py

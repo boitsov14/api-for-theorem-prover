@@ -1,5 +1,6 @@
-workdir/
 .env
+.idea
+__pycache__
 memo.md
 prover.jar
 upload_jarfile.sh
