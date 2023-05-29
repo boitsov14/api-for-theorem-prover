@@ -20,7 +20,7 @@ CORS(app)
 logging.getLogger('waitress').setLevel(logging.INFO)
 
 
-# @app.route('/web', methods=['POST'])
+@app.route('/web', methods=['POST'])
 def web_app():
     txt = request.json['txt']
     notify_line('Web: ' + txt)
@@ -29,7 +29,7 @@ def web_app():
         try:
             shutil.copy('./prover', work)
             os.chdir(work)
-            msg = make_proof_tree(txt, '200m', 10)
+            msg = make_proof_tree(txt, '500m', 10)
             res = {'msg': msg}
             if os.path.exists('out.png'):
                 notify_line(msg, 'out.png')
