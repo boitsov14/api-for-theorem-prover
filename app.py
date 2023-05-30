@@ -7,7 +7,7 @@ import string
 from tempfile import TemporaryDirectory
 
 from dotenv import load_dotenv
-from flask import Flask, request, Response
+from flask import Flask, request
 from flask_cors import CORS
 from misskey import Misskey, NoteVisibility
 from waitress import serve
@@ -57,40 +57,35 @@ def misskey_app():
         '&amp;', '&')
     notify_line('Misskey: ' + txt)
     original_dir = os.getcwd()
-    response = Response('OK')
-
-    @response.call_on_close
-    def on_close():
-        with TemporaryDirectory() as work:
-            try:
-                shutil.copy('./prover', work)
-                os.chdir(work)
-                msg = make_proof_tree(txt, '2g', 60)
-                api = Misskey(i=os.getenv('MISSKEY_ACCESS_TOKEN'))
-                if os.path.exists('out.png'):
-                    notify_line(msg, 'out.png')
-                    # 画像アップロード
-                    with open('out.png', 'rb') as f:
-                        file_id = api.drive_files_create(f)['id']
-                    # Note投稿
-                    res = api.notes_create(text=username + ' ' + msg, renote_id=note_id, file_ids=[file_id],
-                                           visibility=NoteVisibility.HOME)
-                    created_id = res['createdNote']['id']
-                    notify_line(f'https://misskey.io/notes/{created_id}')
-                else:
-                    notify_line(msg)
-                    if 'seconds' not in msg:
-                        msg += ' [' + ''.join(random.sample(string.ascii_lowercase, 3)) + ']'
-                    # Note投稿
-                    res = api.notes_create(text=username + ' ' + msg, renote_id=note_id, visibility=NoteVisibility.HOME)
-                    created_id = res['createdNote']['id']
-                    notify_line(f'https://misskey.io/notes/{created_id}')
-            except Exception as e:
-                notify_line(f'Unexpected error has occurred: {e}')
-            finally:
-                os.chdir(original_dir)
-
-    return response
+    with TemporaryDirectory() as work:
+        try:
+            shutil.copy('./prover', work)
+            os.chdir(work)
+            msg = make_proof_tree(txt, '2g', 30)
+            api = Misskey(i=os.getenv('MISSKEY_ACCESS_TOKEN'))
+            if os.path.exists('out.png'):
+                notify_line(msg, 'out.png')
+                # 画像アップロード
+                with open('out.png', 'rb') as f:
+                    file_id = api.drive_files_create(f)['id']
+                # Note投稿
+                res = api.notes_create(text=username + ' ' + msg, renote_id=note_id, file_ids=[file_id],
+                                       visibility=NoteVisibility.HOME)
+                created_id = res['createdNote']['id']
+                notify_line(f'https://misskey.io/notes/{created_id}')
+            else:
+                notify_line(msg)
+                if 'seconds' not in msg:
+                    msg += ' [' + ''.join(random.sample(string.ascii_lowercase, 3)) + ']'
+                # Note投稿
+                res = api.notes_create(text=username + ' ' + msg, renote_id=note_id, visibility=NoteVisibility.HOME)
+                created_id = res['createdNote']['id']
+                notify_line(f'https://misskey.io/notes/{created_id}')
+        except Exception as e:
+            notify_line(f'Unexpected error has occurred: {e}')
+        finally:
+            os.chdir(original_dir)
+    return 'OK', 200
 
 
 if __name__ == '__main__':
