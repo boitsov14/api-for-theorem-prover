@@ -28,7 +28,7 @@ def prove(sequent: str, size: str, timeout: float) -> str:
         notify_line(f'Error: {e}')
         notify_line(f'stdout: {e.stdout}')
         notify_line(f'stderr: {e.stderr}')
-        return 'An unexpected error has occurred: Binary Execution Error.'
+        return 'An unexpected error has occurred: Binary Execution Error. The bug report was sent to the developer.'
     except TimeoutExpired as e:
         # Timeout
         if not e.stdout:
@@ -58,7 +58,8 @@ def make_dvi() -> str:
         notify_line(f'Error: {e}')
         notify_line(f'stdout: {e.stdout}')
         notify_line(f'stderr: {e.stderr}')
-        return ' An unexpected error has occurred: Could not compile tex file.'
+        return ' An unexpected error has occurred: Could not compile tex file. ' \
+               'The bug report was sent to the developer.'
 
 
 def make_img() -> str:
@@ -80,4 +81,5 @@ def make_img() -> str:
         notify_line(f'Error: {e}')
         notify_line(f'stdout: {e.stdout}')
         notify_line(f'stderr: {e.stderr}')
-        return ' An unexpected error has occurred: Could not compile dvi file.'
+        return ' An unexpected error has occurred: Could not compile dvi file. ' \
+               'The bug report was sent to the developer.'
