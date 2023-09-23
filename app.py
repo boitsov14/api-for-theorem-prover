@@ -24,11 +24,10 @@ logging.getLogger('waitress').setLevel(logging.INFO)
 def web_app():
     txt = request.json['txt']
     notify_line('Web: ' + txt)
-    original_dir = os.getcwd()
-    with TemporaryDirectory() as work:
+    with TemporaryDirectory(dir=os.getcwd()) as work:
         try:
-            shutil.copy('./prover', work)
             os.chdir(work)
+            shutil.copy('../prover', work)
             msg = make_proof_tree(txt, '500m', 10)
             res = {'msg': msg}
             if os.path.exists('out.png'):
@@ -41,8 +40,9 @@ def web_app():
                 notify_line(msg)
         except Exception as e:
             notify_line(f'Unexpected error has occurred: {e}')
+            res = {'msg': 'Unexpected error has occurred.'}
         finally:
-            os.chdir(original_dir)
+            os.chdir('..')
     return res
 
 
@@ -53,14 +53,11 @@ def misskey_app():
         notify_line('Unauthorized request has been detected.')
         return 'Unauthorized', 401
     note_id, username, txt = request.json['id'], request.json['username'], request.json['txt']
-    txt = txt.replace('@sequent_bot', '').replace('@misskey.io', '').replace('&lt;', '<').replace('&gt;', '>').replace(
-        '&amp;', '&')
     notify_line('Misskey: ' + txt)
-    original_dir = os.getcwd()
-    with TemporaryDirectory() as work:
+    with TemporaryDirectory(dir=os.getcwd()) as work:
         try:
-            shutil.copy('./prover', work)
             os.chdir(work)
+            shutil.copy('../prover', work)
             msg = make_proof_tree(txt, '2g', 30)
             api = Misskey(i=os.getenv('MISSKEY_ACCESS_TOKEN'))
             if os.path.exists('out.png'):
@@ -84,7 +81,7 @@ def misskey_app():
         except Exception as e:
             notify_line(f'Unexpected error has occurred: {e}')
         finally:
-            os.chdir(original_dir)
+            os.chdir('..')
     return 'OK', 200
 
 
