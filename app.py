@@ -2,7 +2,6 @@ import base64
 import logging
 import os
 import random
-import shutil
 import string
 from tempfile import TemporaryDirectory
 
@@ -27,7 +26,7 @@ def web_app():
     with TemporaryDirectory(dir=os.getcwd()) as work:
         try:
             os.chdir(work)
-            shutil.copy('../prover', work)
+            os.symlink('../prover', 'prover')
             msg = make_proof_tree(txt, '500m', 10)
             res = {'msg': msg}
             if os.path.exists('out.png'):
@@ -57,7 +56,7 @@ def misskey_app():
     with TemporaryDirectory(dir=os.getcwd()) as work:
         try:
             os.chdir(work)
-            shutil.copy('../prover', work)
+            os.symlink('../prover', 'prover')
             msg = make_proof_tree(txt, '2g', 30)
             api = Misskey(i=os.getenv('MISSKEY_ACCESS_TOKEN'))
             if os.path.exists('out.png'):
