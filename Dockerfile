@@ -13,6 +13,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY .env .
 COPY *.py .
+COPY prover.sh .
 ENV PYTHONUNBUFFERED 1
 EXPOSE 3000
 CMD ["python", "app.py"]
