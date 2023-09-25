@@ -1,5 +1,6 @@
 .env
 .idea
+.devcontainer
 __pycache__
 memo.md
 prover.jar
