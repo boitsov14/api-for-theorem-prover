@@ -20,7 +20,9 @@ var (
 func main() {
 	// create echo instance
 	e := echo.New()
+	e.HideBanner = true
 	e.Use(middleware.CORS())
+	e.Use(middleware.Recover())
 
 	e.POST("/web", func(c echo.Context) error {
 		// get request
@@ -130,12 +132,14 @@ func processWebReq(txt string) (*WebRes, error) {
 }
 
 func notifyLine(msg string) {
+	fmt.Println(msg)
 	if err := notify.SendText(os.Getenv("LINE_ACCESS_TOKEN"), msg); err != nil {
 		fmt.Println("LINE Notification Error: ", err)
 	}
 }
 
 func notifyLineWithImage(msg string) {
+	fmt.Println(msg)
 	if err := notify.SendLocalImage(os.Getenv("LINE_ACCESS_TOKEN"), msg, "out.png"); err != nil {
 		fmt.Println("LINE Notification Error: ", err)
 	}
