@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -35,7 +36,7 @@ func prove(sequent, memory string, timeout int) (string, error) {
 	}
 	// other err
 	if _, err := os.Stat("out.tex"); err != nil || commandErr != nil {
-		return "", fmt.Errorf("binary execution error.\n"+"stdout: %s\n"+"stderr: %s", stdout, stderr)
+		return "", errors.New("binary execution error.\n" + "stdout: " + stdout + "\n" + "stderr: " + stderr)
 	}
 	// success
 	return stdout, nil
@@ -56,7 +57,7 @@ func makeDVI() (string, error) {
 	}
 	// other err
 	if _, err := os.Stat("out.dvi"); err != nil || commandErr != nil {
-		return "", fmt.Errorf("could not compile tex file.\n"+"stdout: %s\n"+"stderr: %s", stdout, stderr)
+		return "", errors.New("could not compile tex file.\n" + "stdout: " + stdout + "\n" + "stderr: " + stderr)
 	}
 	// success
 	return "", nil
@@ -77,7 +78,7 @@ func makePNG() (string, error) {
 	}
 	// other err
 	if _, err := os.Stat("out.png"); err != nil || commandErr != nil {
-		return "", fmt.Errorf("could not compile dvi file.\n"+"stdout: %s\n"+"stderr: %s", stdout, stderr)
+		return "", errors.New("could not compile dvi file.\n" + "stdout: " + stdout + "\n" + "stderr: " + stderr)
 	}
 	// success
 	return "", nil
