@@ -1,0 +1,12 @@
+{
+    "name": "Go (Echo)",
+    "dockerFile": "Dockerfile",
+    "context": "../..",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "workbench.colorTheme": "Tomorrow Night Blue"
+            }
+        }
+    }
+}
