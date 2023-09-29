@@ -30,11 +30,11 @@ func main() {
 		if err := c.Bind(req); err != nil {
 			return err
 		}
-		txt := req.Txt
-		notifyLine("Web: " + txt)
+		sequent := req.Txt
+		notifyLine("Web: " + sequent)
 
 		// process request
-		webRes, err := processWebReq(txt)
+		webRes, err := processWebReq(sequent)
 		if err != nil {
 			notifyLine("Unexpected error has occurred.\n" + err.Error())
 			return c.String(http.StatusInternalServerError, "")
@@ -64,7 +64,7 @@ type WebRes struct {
 	Tex string `json:"tex"`
 }
 
-func processWebReq(txt string) (*WebRes, error) {
+func processWebReq(sequent string) (*WebRes, error) {
 	// lock
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -88,7 +88,7 @@ func processWebReq(txt string) (*WebRes, error) {
 	}
 
 	// run prover
-	msg, err := prove(txt, "500m", 10)
+	msg, err := prove(sequent, "500m", 10)
 	if err != nil {
 		return nil, err
 	}
