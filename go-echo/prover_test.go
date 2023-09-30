@@ -21,6 +21,16 @@ func TestProve(t *testing.T) {
 	assert.NoError(err)
 	assert.Contains(re.Msg, "Unprovable.")
 
+	sequent = "あ"
+	re, err = prove(sequent, "2g", 10, false)
+	assert.NoError(err)
+	assert.Contains(re.Msg, "Illegal Argument")
+
+	sequent = ""
+	re, err = prove(sequent, "2g", 10, false)
+	assert.NoError(err)
+	assert.Contains(re.Msg, "Parse Error")
+
 	sequent = "(((((((((a⇔b)⇔c)⇔d)⇔e)⇔f)⇔g)⇔h)⇔i)⇔(a⇔(b⇔(c⇔(d⇔(e⇔(f⇔(g⇔(h⇔i)))))))))"
 
 	re, err = prove(sequent, "2g", 1, false)
