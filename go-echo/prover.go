@@ -9,7 +9,84 @@ import (
 	"strings"
 )
 
-func prove(sequent, memory string, timeout int) (string, error) {
+type Result struct {
+	Msg string
+	Img []byte
+	Tex string
+}
+
+func prove(sequent, memory string, timeout int, enableNotification bool) (*Result, error) {
+	// lock
+	mutex.Lock()
+	defer mutex.Unlock()
+
+	// create temp dir
+	dir, err := os.MkdirTemp(".", "")
+	if err != nil {
+		return nil, err
+	}
+	defer os.RemoveAll(dir)
+
+	// change dir
+	if err := os.Chdir(dir); err != nil {
+		return nil, err
+	}
+	defer os.Chdir("..")
+
+	// symlink ../prover
+	if err := os.Symlink("../prover", "prover"); err != nil {
+		return nil, err
+	}
+
+	// run prover
+	msg, err := runProver(sequent, memory, timeout)
+	if err != nil {
+		return nil, err
+	}
+	// make dvi
+	msgDVI, err := makeDVI()
+	if err != nil {
+		return nil, err
+	}
+	// make png
+	msgPNG, err := makePNG()
+	if err != nil {
+		return nil, err
+	}
+	msg += msgDVI + msgPNG
+
+	// create response
+	res := &Result{
+		Msg: msg,
+	}
+
+	// if out.png exists
+	if _, err := os.Stat("out.png"); err == nil {
+		if enableNotification {
+			notifyLineWithImage(msg)
+		}
+		// read out.png
+		img, err := os.ReadFile("out.png")
+		if err != nil {
+			return nil, err
+		}
+		res.Img = img
+		// read out.tex
+		tex, err := os.ReadFile("out.tex")
+		if err != nil {
+			return nil, err
+		}
+		res.Tex = string(tex)
+	} else {
+		if enableNotification {
+			notifyLine(msg)
+		}
+	}
+
+	return res, nil
+}
+
+func runProver(sequent, memory string, timeout int) (string, error) {
 	// run the command
 	stdout, stderr, commandErr := runCommand("../prover.sh", sequent, memory, strconv.Itoa(timeout))
 
