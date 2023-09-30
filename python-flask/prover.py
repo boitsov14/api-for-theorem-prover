@@ -13,9 +13,6 @@ def prove(sequent: str, memory: str, timeout: int) -> str:
     try:
         cmd = ['../prover.sh', sequent, memory, str(timeout)]
         result = subprocess.run(cmd, capture_output=True, check=True, text=True)
-        # TeXが生成されないとき
-        if not os.path.exists('out.tex'):
-            raise CalledProcessError(1, cmd, result.stdout, result.stderr)
         # 正常時
         return result.stdout
     except CalledProcessError as e:

@@ -88,7 +88,7 @@ func prove(sequent, memory string, timeout int, enableNotification bool) (*Resul
 
 func runProver(sequent, memory string, timeout int) (string, error) {
 	// run the command
-	stdout, stderr, commandErr := runCommand("../prover.sh", sequent, memory, strconv.Itoa(timeout))
+	stdout, stderr, err := runCommand("../prover.sh", sequent, memory, strconv.Itoa(timeout))
 
 	// Timeout
 	if strings.Contains(stderr, "CPU time limit exceeded") {
@@ -111,7 +111,7 @@ func runProver(sequent, memory string, timeout int) (string, error) {
 		return "Proof Failed: StackOverflowError.", nil
 	}
 	// other err
-	if _, err := os.Stat("out.tex"); err != nil || commandErr != nil {
+	if err != nil {
 		return "", errors.New("binary execution error.\n" + "stdout: " + stdout + "\n" + "stderr: " + stderr)
 	}
 	// success
