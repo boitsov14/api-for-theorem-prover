@@ -145,11 +145,7 @@ func createNote(result *Result, renoteID string) error {
 	if result.Img != nil {
 		// upload image
 		file, err := client.Drive().File().Create(files.CreateRequest{
-			FolderID:    "",
-			Name:        "out.png",
-			IsSensitive: false,
-			Force:       false,
-			Content:     result.Img,
+			Content: result.Img,
 		})
 		if err != nil {
 			return err
