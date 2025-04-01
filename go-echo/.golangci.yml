@@ -13,6 +13,17 @@ linters:
     - varnamelen # don't care about variable name length
     - wrapcheck # don't want to wrap every error from external package
     - wsl # don't want to restrict when to insert a new line
+  settings:
+    govet:
+      enable-all: true
+      disable:
+        - shadow # want to shadow err
+    nolintlint: # stricter
+      require-explanation: true
+      require-specific: true
+    staticcheck: # stricter
+      checks:
+        - all
   exclusions:
     rules:
       - path: '_test\.go'
