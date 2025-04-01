@@ -77,10 +77,8 @@ func prove(sequent, memory string, timeout int, enableNotification bool) (*Resul
 			return nil, err
 		}
 		res.Tex = string(tex)
-	} else {
-		if enableNotification {
-			notifyLine(msg)
-		}
+	} else if enableNotification {
+		notifyLine(msg)
 	}
 
 	return res, nil
@@ -94,17 +92,15 @@ func runProver(sequent, memory string, timeout int) (string, error) {
 	if strings.Contains(stderr, "CPU time limit exceeded") {
 		if stdout == "" {
 			return "Proof Failed: Timeout.", nil
-		} else {
-			return stdout + " The proof tree is too large to output: Timeout.", nil
 		}
+		return stdout + " The proof tree is too large to output: Timeout.", nil
 	}
 	// OutOfMemoryError
 	if strings.Contains(stderr, "OutOfMemoryError") {
 		if stdout == "" {
 			return "Proof Failed: OutOfMemoryError.", nil
-		} else {
-			return stdout + " The proof tree is too large to output: OutOfMemoryError.", nil
 		}
+		return stdout + " The proof tree is too large to output: OutOfMemoryError.", nil
 	}
 	// StackOverflowError
 	if strings.Contains(stderr, "StackOverflowError") {
