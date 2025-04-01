@@ -11,8 +11,8 @@ import (
 
 type Result struct {
 	Msg string
-	Img []byte
 	Tex string
+	Img []byte
 }
 
 func prove(sequent, memory string, timeout int, enableNotification bool) (*Result, error) {
