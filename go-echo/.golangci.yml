@@ -1,5 +1,11 @@
 version: "2"
 
+issues:
+  max-same-issues: 0 # show all issues
+
+formatters:
+  default: all
+
 linters:
   default: all
   disable:
