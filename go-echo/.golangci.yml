@@ -1,0 +1,24 @@
+version: "2"
+
+linters:
+  default: all
+  disable:
+    - cyclop # don't care about cyclomatic complexity
+    - depguard # don't want to restrict imports
+    - err113 # want to use dynamic errors
+    - exhaustruct # redundant to write all struct fields
+    - funlen # don't care about function length
+    - nestif # don't care about the complexity of nested if statements
+    - nlreturn # don't want to insert a newline before return statement
+    - varnamelen # don't care about variable name length
+    - wrapcheck # don't want to wrap every error from external package
+    - wsl # don't want to restrict when to insert a new line
+  exclusions:
+    rules:
+      - path: '_test\.go'
+        linters:
+          - lll # some test cases are long
+          - paralleltest # false positives
+      - linters:
+          - errcheck
+        source: "^\\s*defer\\s+" # ignore errcheck for deferred functions
