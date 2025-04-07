@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/go-resty/resty/v2"
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/juunini/simple-go-line-notify/notify"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/yitsushi/go-misskey"
@@ -35,15 +35,15 @@ func main() {
 		// get request
 		req := new(WebReq)
 		if err := c.Bind(req); err != nil {
-			notifyLine("/web: Invalid request.")
+			notify("/web: Invalid request.")
 			return err
 		}
-		notifyLine("/web: " + req.Txt)
+		notify("/web: " + req.Txt)
 
 		// prove
 		result, err := prove(req.Txt, "500m", 10, true)
 		if err != nil {
-			notifyLine("Unexpected error has occurred.\n" + err.Error())
+			notify("Unexpected error has occurred.\n" + err.Error())
 			return c.String(http.StatusInternalServerError, "")
 		}
 
@@ -61,22 +61,22 @@ func main() {
 	e.POST("/misskey", func(c echo.Context) error {
 		// check password
 		if c.Request().Header.Get("Authorization") != "Bearer "+os.Getenv("PASSWORD") {
-			notifyLine("/misskey: Invalid password.")
+			notify("/misskey: Invalid password.")
 			return c.String(http.StatusUnauthorized, "")
 		}
 
 		// get request
 		req := new(MisskeyReq)
 		if err := c.Bind(req); err != nil {
-			notifyLine("/misskey: Invalid request.")
+			notify("/misskey: Invalid request.")
 			return err
 		}
-		notifyLine("/misskey: " + req.Txt)
+		notify("/misskey: " + req.Txt)
 
 		// prove
 		result, err := prove(req.Txt, "2g", 30, true)
 		if err != nil {
-			notifyLine("Unexpected error has occurred.\n" + err.Error())
+			notify("Unexpected error has occurred.\n" + err.Error())
 			return c.String(http.StatusInternalServerError, "")
 		}
 
@@ -95,7 +95,7 @@ func main() {
 
 		// create note
 		if err := createNote(result, req.Id); err != nil {
-			notifyLine("Could not create post.\n" + err.Error())
+			notify("Could not create post.\n" + err.Error())
 			return c.String(http.StatusInternalServerError, "")
 		}
 
@@ -159,28 +159,45 @@ func createNote(result *Result, renoteID string) error {
 		if err != nil {
 			return err
 		}
-		notifyLine("https://misskey.io/notes/" + res.CreatedNote.ID)
+		notify("https://misskey.io/notes/" + res.CreatedNote.ID)
 	} else {
 		// create note
 		res, err := client.Notes().Create(req)
 		if err != nil {
 			return err
 		}
-		notifyLine("https://misskey.io/notes/" + res.CreatedNote.ID)
+		notify("https://misskey.io/notes/" + res.CreatedNote.ID)
 	}
 	return nil
 }
 
-func notifyLine(msg string) {
+func notify(msg string) {
 	fmt.Println(msg)
-	if err := notify.SendText(os.Getenv("LINE_ACCESS_TOKEN"), msg); err != nil {
-		fmt.Println("LINE Notification Error: ", err)
+	fmt.Println(os.Getenv("NOTIFICATION_URL") + "/text")
+	_, err := resty.
+		New().
+		SetRetryCount(3).
+		R().
+		SetBody(msg).
+		SetHeader("Content-Type", "text/plain").
+		Post(os.Getenv("NOTIFICATION_URL") + "/text")
+	if err != nil {
+		fmt.Println("Notification Error: ", err)
 	}
 }
 
-func notifyLineWithImage(msg string) {
+func notifyWithImage(msg string) {
 	fmt.Println(msg)
-	if err := notify.SendLocalImage(os.Getenv("LINE_ACCESS_TOKEN"), msg, "out.png"); err != nil {
-		fmt.Println("LINE Notification Error: ", err)
+	_, err := resty.
+		New().
+		SetRetryCount(3).
+		R().
+		SetFormData(map[string]string{
+			"content": msg,
+		}).
+		SetFile("file", "out.png").
+		Post(os.Getenv("NOTIFICATION_URL") + "/png")
+	if err != nil {
+		fmt.Println("Notification Error: ", err)
 	}
 }

@@ -4,7 +4,6 @@ go 1.24.2
 
 require (
 	github.com/joho/godotenv v1.5.1
-	github.com/juunini/simple-go-line-notify v1.3.1
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/stretchr/testify v1.10.0
 	github.com/yitsushi/go-misskey v1.1.6

@@ -63,7 +63,7 @@ func prove(sequent, memory string, timeout int, enableNotification bool) (*Resul
 	// if out.png exists
 	if _, err := os.Stat("out.png"); err == nil {
 		if enableNotification {
-			notifyLineWithImage(msg)
+			notifyWithImage(msg)
 		}
 		// read out.png
 		img, err := os.ReadFile("out.png")
@@ -78,7 +78,7 @@ func prove(sequent, memory string, timeout int, enableNotification bool) (*Resul
 		}
 		res.Tex = string(tex)
 	} else if enableNotification {
-		notifyLine(msg)
+		notify(msg)
 	}
 
 	return res, nil
