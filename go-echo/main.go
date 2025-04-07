@@ -173,7 +173,6 @@ func createNote(result *Result, renoteID string) error {
 
 func notify(msg string) {
 	fmt.Println(msg)
-	fmt.Println(os.Getenv("NOTIFICATION_URL") + "/text")
 	_, err := resty.
 		New().
 		SetRetryCount(3).

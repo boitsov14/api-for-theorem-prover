@@ -2,4 +2,4 @@
 
 ulimit -St "$3"
 
-./prover -Xmx"$2" out "$1"
+java -jar -Xmx"$2" ./prover.jar out "$1"

@@ -34,7 +34,7 @@ func prove(sequent, memory string, timeout int, enableNotification bool) (*Resul
 	defer os.Chdir("..")
 
 	// symlink ../prover
-	if err := os.Symlink("../prover", "prover"); err != nil {
+	if err := os.Symlink("../prover.jar", "prover.jar"); err != nil {
 		return nil, err
 	}
 
